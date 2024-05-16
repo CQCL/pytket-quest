@@ -70,9 +70,7 @@ class QuESTBackend(Backend):
         raise NotImplementedError
 
     @property
-    def _result_id_type(
-        self,
-    ) -> _ResultIdTuple:
+    def _result_id_type(self, ) -> _ResultIdTuple:
         raise NotImplementedError
 
     def process_circuits(
