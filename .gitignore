@@ -1,9 +1,11 @@
+# IDE
+.vscode
+
 .eggs
 *.egg-info
 build
 dist
 *.pyc
-.vscode
 .venv
 .mypy_cache
 .hypothesis
