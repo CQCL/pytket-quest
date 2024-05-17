@@ -1,5 +1,5 @@
 [MASTER]
-max-line-length=99
+max-line-length=90
 output-format=colorized
 score=no
 reports=no
