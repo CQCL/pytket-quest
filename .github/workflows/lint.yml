@@ -3,7 +3,8 @@ name: Lint python projects
 on:
   pull_request:
     branches:
-      - PQ-2
+      - main
+      - PQ-*
 
 jobs:
   lint:

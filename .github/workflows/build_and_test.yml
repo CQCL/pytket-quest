@@ -3,10 +3,10 @@ name: Build and test
 on:
   pull_request:
     branches:
-      - PQ-2
+      - main
   push:
     branches:
-      - PQ-2
+      - PQ-*
       - 'wheel/**'
       - 'runci/**'
   release:
