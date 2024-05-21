@@ -13,5 +13,5 @@
 # limitations under the License.
 
 
-def test_empty():
+def test_empty() -> None:
     pass
