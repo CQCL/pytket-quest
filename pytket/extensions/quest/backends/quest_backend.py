@@ -17,11 +17,14 @@
 
 from typing import List, Sequence, Optional, Type, Union,  cast
 from logging import warning
+from uuid import uuid4
 from random import Random
 from pytket.backends import (
     Backend,
+    CircuitNotRunError,
     CircuitStatus,
     ResultHandle,
+    StatusEnum,
 )
 from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.backends.backendinfo import BackendInfo
@@ -57,6 +60,7 @@ from quest_convert import (
 
 from pyquest import  QuESTEnvironment, Register
 from pyquest.unitaries import *
+import numpy as np
 
 _1Q_GATES = (
     set(_ONE_QUBIT_ROTATIONS)
@@ -107,11 +111,9 @@ class QuESTBackend(Backend):
         self._result_type = result_type
         self._sim: Type[Union[Register]]
         if result_type == "state_vector":
-            self._sim = Register
+            self._density_matrix=False
         elif result_type == "density_matrix":
-            self._sim = Register
-            self._supports_state = False
-            self._supports_density_matrix = True
+            self._density_matrix=True
         else:
             raise ValueError(f"Unsupported result type {result_type}")
 
@@ -183,7 +185,39 @@ class QuESTBackend(Backend):
 
         seed = cast(Optional[int], kwargs.get("seed"))
         rng = Random(seed) if seed else None
-        raise NotImplementedError
+
+        handle_list = []
+        for circuit in circuits:
+            quest_state = self._sim(circuit.n_qubits, self._density_matrix)
+            quest_circ = tk_to_quest(
+                circuit, reverse_index=True, replace_implicit_swaps=True
+            )
+            quest_circ.apply_circuit(quest_circ)
+
+            if self._result_type == "state_vector":
+                state = quest_state[:]  # type: ignore
+            else:
+                state = quest_state[:,:]  # type: ignore
+            qubits = sorted(circuit.qubits, reverse=False)
+
+            if self._result_type == "state_vector":
+                try:
+                    phase = float(circuit.phase)
+                    coeff = np.exp(phase * np.pi * 1j)
+                    state *= coeff
+                except TypeError:
+                    warning(
+                        "Global phase is dependent on a symbolic parameter, so cannot "
+                        "adjust for phase"
+                    )
+            handle = ResultHandle(str(uuid4()))
+
+            handle_list.append(handle)
+            del quest_state
+            del quest_circ
+        return handle_list
 
     def circuit_status(self, handle: ResultHandle) -> CircuitStatus:
-        raise NotImplementedError
+        if handle in self._cache:
+            return CircuitStatus(StatusEnum.COMPLETED)
+        raise CircuitNotRunError(handle)
