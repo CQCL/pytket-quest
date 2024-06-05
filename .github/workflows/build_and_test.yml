@@ -1,0 +1,57 @@
+name: Build and test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - PQ-*
+      - 'wheel/**'
+      - 'runci/**'
+  release:
+    types:
+      - created
+      - edited
+
+jobs:
+  quest-checks:
+    name: QuEST - Build and test module
+    strategy:
+      matrix:
+        os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
+    - name: Set up Python 3.10
+      if: github.event_name == 'push'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Build and test (3.10)
+      if: github.event_name == 'push'
+      shell: bash
+      run: |
+        ./.github/workflows/build-test nomypy
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Build and test including remote checks (3.11) mypy
+      if:  (matrix.os == 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release')
+      shell: bash
+      run: |
+        ./.github/workflows/build-test mypy
+    - name: Build and test including remote checks (3.11) nomypy
+      if:  (matrix.os != 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release')
+      shell: bash
+      run: |
+        ./.github/workflows/build-test nomypy
+    - uses: actions/upload-artifact@v4
+      if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
+      with:
+        name: artefact-${{ matrix.os }}
+        path: wheelhouse/

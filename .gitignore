@@ -1,0 +1,20 @@
+# IDE
+.vscode
+
+.eggs
+*.egg-info
+build
+dist
+*.pyc
+.venv
+.mypy_cache
+.hypothesis
+obj
+docs/extensions
+.ipynb_checkpoints
+pytket/extensions/quest/_metadata.py
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
