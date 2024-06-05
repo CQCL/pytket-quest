@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import List, Tuple
+
 import pytest
 
 import numpy as np
@@ -92,7 +94,7 @@ def test_swap() -> None:
         (OpType.U3, [0.19, 0.24, 0.3], 2),
     ],
 )
-def test_ibm_gateset_error(gate_params) -> None:
+def test_ibm_gateset_error(gate_params: Tuple[OpType, List[int], int]) -> None:
     circ = Circuit(3)
     op_type, angles, qubit = gate_params
     circ.add_gate(op_type, angles, [qubit])
