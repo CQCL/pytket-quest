@@ -80,7 +80,7 @@ def tk_to_quest(
             elif optype == OpType.CZ:
                 add_gate = gates.Z(id2, controls=id1)
             else:
-                add_gate = quest_gate(targets=id2, controls=id1)
+                add_gate = quest_gate(id2, controls=id1)
             quest_operators.append(add_gate)
 
         elif optype in _MEASURE_GATES:
