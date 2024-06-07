@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - PQ-*
+      - main
       - 'wheel/**'
       - 'runci/**'
   release:
