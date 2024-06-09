@@ -67,7 +67,7 @@ def tk_to_quest(
         elif optype in _ONE_QUBIT_ROTATIONS:
             quest_gate = _ONE_QUBIT_ROTATIONS[optype]
             index = index_map[com.qubits[0].index[0]]
-            param = com.op.params[0] * np.pi
+            param = com.op.params[0] * np.pi  # type: ignore
             add_gate = quest_gate(index, param)
             quest_operators.append(add_gate)
 
