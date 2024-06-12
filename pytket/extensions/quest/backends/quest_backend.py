@@ -49,15 +49,16 @@ from pytket.predicates import (
     DefaultRegisterPredicate,
     Predicate,
 )
+
 from quest_convert import (
     tk_to_quest,
-    _IBM_GATES,
     _MEASURE_GATES,
     _ONE_QUBIT_GATES,
     _TWO_QUBIT_GATES,
     _ONE_QUBIT_ROTATIONS,
 )
 
+import pyquest
 from pyquest import  QuESTEnvironment, Register
 from pyquest.unitaries import *
 import numpy as np
@@ -66,7 +67,6 @@ _1Q_GATES = (
     set(_ONE_QUBIT_ROTATIONS)
     | set(_ONE_QUBIT_GATES)
     | set(_MEASURE_GATES)
-    | set(_IBM_GATES)
 )
 
 class QuESTBackend(Backend):
@@ -112,8 +112,13 @@ class QuESTBackend(Backend):
         self._sim: Type[Union[Register]]
         if result_type == "state_vector":
             self._density_matrix=False
+            self._sim = Register
+            self._supports_density_matrix = False
         elif result_type == "density_matrix":
             self._density_matrix=True
+            self._sim = Register
+            self._supports_state = False
+            self._supports_density_matrix = True
         else:
             raise ValueError(f"Unsupported result type {result_type}")
 
@@ -165,12 +170,6 @@ class QuESTBackend(Backend):
                 ]
             )
 
-    @property
-    def _result_id_type(
-        self,
-    ) -> _ResultIdTuple:
-        raise NotImplementedError
-
     def process_circuits(
         self,
         circuits: Sequence[Circuit],
@@ -192,7 +191,7 @@ class QuESTBackend(Backend):
             quest_circ = tk_to_quest(
                 circuit, reverse_index=True, replace_implicit_swaps=True
             )
-            quest_circ.apply_circuit(quest_circ)
+            quest_state.apply_circuit(quest_circ)
 
             if self._result_type == "state_vector":
                 state = quest_state[:]  # type: ignore
@@ -211,6 +210,18 @@ class QuESTBackend(Backend):
                         "adjust for phase"
                     )
             handle = ResultHandle(str(uuid4()))
+            if self._result_type == "state_vector":
+                self._cache[handle] = {
+                    "result": BackendResult(
+                        state=state, q_bits=qubits
+                    )
+                }
+            else:
+                self._cache[handle] = {
+                    "result": BackendResult(
+                        density_matrix=state, q_bits=qubits
+                    )
+                }
 
             handle_list.append(handle)
             del quest_state

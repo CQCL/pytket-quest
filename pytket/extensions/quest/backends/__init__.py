@@ -14,5 +14,7 @@
 """Backend for utilising the QuEST simulator directly from pytket"""
 
 import warnings
+import sys
+sys.path.append('.')
 
 from .quest_backend import QuESTBackend
