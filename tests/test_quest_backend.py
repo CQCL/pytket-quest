@@ -27,6 +27,8 @@ from pytket.passes import CliffordSimp
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.results import KwargTypes
 
+from ..pytket.extensions.quest.backends.quest_backend import QuESTBackend
+
 PARAM = -0.11176849
 backends = [
     QuESTBackend(result_type="state_vector"),
