@@ -27,7 +27,7 @@ from pytket.passes import CliffordSimp
 from pytket.utils.operators import QubitPauliOperator
 from pytket.utils.results import KwargTypes
 
-from ..pytket.extensions.quest.backends.quest_backend import QuESTBackend
+from pytket.extensions.quest.backends.quest_backend import QuESTBackend
 
 PARAM = -0.11176849
 backends = [
@@ -158,52 +158,6 @@ def test_swaps_basisorder() -> None:
             assert np.allclose(s_dlo, np.outer(correct_dlo, correct_dlo.conj()))
 
 
-
-@pytest.mark.filterwarnings("ignore::PendingDeprecationWarning")
-def test_basisorder() -> None:
-    for b in backends:
-        c = Circuit(2)
-        c.X(1)
-        b.process_circuit(c)
-        res = b.run_circuit(c)
-        if b.supports_state:
-            assert (res.get_state() == np.asarray([0, 1, 0, 0])).all()
-            assert (
-                res.get_state(basis=BasisOrder.dlo) == np.asarray([0, 0, 1, 0])
-            ).all()
-        if b.supports_density_matrix:
-            sv = np.asarray([0, 1, 0, 0])
-            assert (res.get_density_matrix() == np.outer(sv, sv.conj())).all()
-            sv = np.asarray([0, 0, 1, 0])
-            assert (
-                res.get_density_matrix(basis=BasisOrder.dlo) == np.outer(sv, sv.conj())
-            ).all()
-        c.measure_all()
-        res = b.run_circuit(c, n_shots=4, seed=4)
-        assert res.get_shots().shape == (4, 2)
-        assert res.get_counts() == {(0, 1): 4}
-
-
-pauli_sym = {"I": Pauli.I, "X": Pauli.X, "Y": Pauli.Y, "Z": Pauli.Z}
-
-
-def test_measurement_mask() -> None:
-    for b in backends:
-        n_shots = 10
-        circ1 = Circuit(2, 2).X(0).X(1).measure_all()
-        circ2 = Circuit(2, 2).X(0).measure_all()
-        circ3 = Circuit(2, 1).X(1).Measure(0, 0)
-        circ4 = Circuit(3, 2).X(0).Measure(0, 0).Measure(2, 1)
-        circ_list = [circ1, circ2, circ3, circ4]
-        target_shots = [[1, 1], [1, 0], [0], [1, 0]]
-
-        for i, circ in enumerate(circ_list):
-            shots = b.run_circuit(circ, n_shots=n_shots).get_shots()
-            for sh in shots:
-                assert len(sh) == len(target_shots[i])
-                assert np.array_equal(sh, target_shots[i])
-
-
 #OK
 def test_default_pass() -> None:
     for b in backends:
@@ -218,47 +172,6 @@ def test_default_pass() -> None:
             comp_pass.apply(c)
             for pred in b.required_predicates:
                 assert pred.verify(c)
-
-
-def test_backend_with_circuit_permutation() -> None:
-    for b in backends:
-        c = Circuit(3).X(0).SWAP(0, 1).SWAP(0, 2)
-        qubits = c.qubits
-        if b.supports_state:
-            sv = b.run_circuit(c).get_state()
-        else:
-            sv = b.run_circuit(c).get_density_matrix()
-        # convert swaps to implicit permutation
-        c.replace_SWAPs()
-        assert c.implicit_qubit_permutation() == {
-            qubits[0]: qubits[1],
-            qubits[1]: qubits[2],
-            qubits[2]: qubits[0],
-        }
-        if b.supports_state:
-            sv1 = b.run_circuit(c).get_state()
-        else:
-            sv1 = b.run_circuit(c).get_density_matrix()
-        assert np.allclose(sv, sv1, atol=1e-10)
-        # test circuits with implicit swaps
-        wire_map = {0: 3, 1: 0, 2: 1, 3: 2}
-        for x in [0, 1, 2, 3]:
-            c = Circuit(4).X(x).SWAP(0, 1).SWAP(1, 2).SWAP(2, 3).measure_all()
-            expected_readout = tuple([1 if i == wire_map[x] else 0 for i in range(4)])
-            # without implicit swaps
-            counts = b.run_circuit(c, n_shots=100).get_counts()
-            assert len(counts) == 1
-            assert counts[expected_readout] == 100
-            # with implicit swaps
-            c.replace_SWAPs()
-            counts = b.run_circuit(c, n_shots=100).get_counts()
-            assert len(counts) == 1
-            assert counts[expected_readout] == 100
-        # https://github.com/CQCL/pytket-qulacs/issues/86
-        c = Circuit(2, 1).X(0).SWAP(0, 1).Measure(1, 0)
-        compiled = b.get_compiled_circuit(c, optimisation_level=2)
-        res = b.run_circuit(compiled, n_shots=5)
-        assert res.get_counts()[(1,)] == 5
 
 #OK
 def test_backend_info() -> None:

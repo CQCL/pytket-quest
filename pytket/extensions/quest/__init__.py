@@ -14,9 +14,7 @@
 """Module for conversion from tket primitives to QuEST primitives."""
 
 # _metadata.py is copied to the folder after installation.
-#from ._metadata import __extension_version__, __extension_name__
-import sys
-sys.path.append('.')
+from ._metadata import __extension_version__, __extension_name__
 from .backends.quest_backend import QuESTBackend
 
 from .quest_convert import tk_to_quest
