@@ -1,5 +1,5 @@
 # Copyright 2019-2024 Quantinuum
-#s
+# s
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 """Methods to allow tket circuits to be ran on the QuEST simulator
 """
 
-from typing import List, Sequence, Optional, Type, Union,  cast
+from typing import List, Sequence, Optional, Type, Union, cast
 from logging import warning
 from uuid import uuid4
 from random import Random
@@ -59,15 +59,12 @@ from quest_convert import (
 )
 
 import pyquest
-from pyquest import  QuESTEnvironment, Register
+from pyquest import QuESTEnvironment, Register
 from pyquest.unitaries import *
 import numpy as np
 
-_1Q_GATES = (
-    set(_ONE_QUBIT_ROTATIONS)
-    | set(_ONE_QUBIT_GATES)
-    | set(_MEASURE_GATES)
-)
+_1Q_GATES = set(_ONE_QUBIT_ROTATIONS) | set(_ONE_QUBIT_GATES) | set(_MEASURE_GATES)
+
 
 class QuESTBackend(Backend):
     """
@@ -88,7 +85,7 @@ class QuESTBackend(Backend):
         *_1Q_GATES,
         OpType.Barrier,
     }
-    
+
     def __init__(
         self,
         result_type: str = "state_vector",
@@ -111,17 +108,16 @@ class QuESTBackend(Backend):
         self._result_type = result_type
         self._sim: Type[Union[Register]]
         if result_type == "state_vector":
-            self._density_matrix=False
+            self._density_matrix = False
             self._sim = Register
             self._supports_density_matrix = False
         elif result_type == "density_matrix":
-            self._density_matrix=True
+            self._density_matrix = True
             self._sim = Register
             self._supports_state = False
             self._supports_density_matrix = True
         else:
             raise ValueError(f"Unsupported result type {result_type}")
-
 
     @property
     def _result_id_type(self) -> _ResultIdTuple:
@@ -175,7 +171,7 @@ class QuESTBackend(Backend):
         circuits: Sequence[Circuit],
         n_shots: int | Sequence[int] | None = None,
         valid_check: bool = True,
-        **kwargs: int | float | str | None
+        **kwargs: int | float | str | None,
     ) -> List[ResultHandle]:
         circuits = list(circuits)
 
@@ -196,7 +192,7 @@ class QuESTBackend(Backend):
             if self._result_type == "state_vector":
                 state = quest_state[:]  # type: ignore
             else:
-                state = quest_state[:,:]  # type: ignore
+                state = quest_state[:, :]  # type: ignore
             qubits = sorted(circuit.qubits, reverse=False)
 
             if self._result_type == "state_vector":
@@ -212,15 +208,11 @@ class QuESTBackend(Backend):
             handle = ResultHandle(str(uuid4()))
             if self._result_type == "state_vector":
                 self._cache[handle] = {
-                    "result": BackendResult(
-                        state=state, q_bits=qubits
-                    )
+                    "result": BackendResult(state=state, q_bits=qubits)
                 }
             else:
                 self._cache[handle] = {
-                    "result": BackendResult(
-                        density_matrix=state, q_bits=qubits
-                    )
+                    "result": BackendResult(density_matrix=state, q_bits=qubits)
                 }
 
             handle_list.append(handle)
