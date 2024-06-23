@@ -35,13 +35,11 @@ backends = [
     QuESTBackend(result_type="density_matrix"),
 ]
 
-#OK
 def h2_1q_circ(theta: float) -> Circuit:
     circ = Circuit(1)
     circ.Ry(-2 / np.pi * -theta, 0)
     return circ
 
-#OK
 def h2_2q_circ(theta: float) -> Circuit:
     circ = Circuit(2).X(0)
     circ.Rx(0.5, 0).H(1)
@@ -51,7 +49,6 @@ def h2_2q_circ(theta: float) -> Circuit:
     circ.Rx(-0.5, 0).H(1)
     return circ
 
-#OK
 def h2_3q_circ(theta: float) -> Circuit:
     circ = Circuit(3).X(0).X(1)
     circ.Rx(0.5, 0).H(1).H(2)
@@ -61,7 +58,6 @@ def h2_3q_circ(theta: float) -> Circuit:
     circ.Rx(-0.5, 0).H(1).H(2)
     return circ
 
-#OK
 def h2_4q_circ(theta: float) -> Circuit:
     circ = Circuit(4).X(0).X(1)
     circ.Rx(0.5, 0).H(1).H(2).H(3)
@@ -71,14 +67,12 @@ def h2_4q_circ(theta: float) -> Circuit:
     circ.Rx(-0.5, 0).H(1).H(2).H(3)
     return circ
 
-#OK
 def test_properties() -> None:
     svb = QuESTBackend()
     dmb = QuESTBackend(result_type="density_matrix")
     assert not svb._density_matrix
     assert dmb._density_matrix
 
-#OK
 def test_get_state() -> None:
     quest_circ = h2_4q_circ(PARAM)
     correct_state = np.array(
@@ -112,7 +106,6 @@ def test_get_state() -> None:
                 quest_state, np.outer(correct_state, correct_state.conj())
             )
 
-#OK
 def test_statevector_phase() -> None:
     for b in backends:
         if not b.supports_state:
@@ -125,8 +118,7 @@ def test_statevector_phase() -> None:
         circ.add_phase(0.5)
         state1 = b.run_circuit(circ).get_state()
         assert np.allclose(state1, state * 1j, atol=1e-10)
-        
-#OK
+      
 def test_swaps_basisorder() -> None:
     # Check that implicit swaps can be corrected irrespective of BasisOrder
     for b in backends:
@@ -157,8 +149,6 @@ def test_swaps_basisorder() -> None:
             correct_dlo[2] = 1.0
             assert np.allclose(s_dlo, np.outer(correct_dlo, correct_dlo.conj()))
 
-
-#OK
 def test_default_pass() -> None:
     for b in backends:
         for ol in range(3):
@@ -173,7 +163,6 @@ def test_default_pass() -> None:
             for pred in b.required_predicates:
                 assert pred.verify(c)
 
-#OK
 def test_backend_info() -> None:
     for b in backends:
         assert b.backend_info is not None

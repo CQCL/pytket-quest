@@ -1,5 +1,5 @@
 # Copyright 2019-2024 Quantinuum
-# s
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -30,7 +30,7 @@ from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Circuit, OpType
-from pytket.extensions.qulacs._metadata import __extension_version__
+from pytket.extensions.quest._metadata import __extension_version__
 from pytket.passes import (
     BasePass,
     SynthesiseTket,
@@ -91,7 +91,7 @@ class QuESTBackend(Backend):
         result_type: str = "state_vector",
     ) -> None:
         """
-        Backend for running simulations on the pyQuest simulator
+        Backend for running simulations on the QuEST simulator
 
         :param result_type: Indicating the type of the simulation result
             to be returned. It can be either "state_vector" or "density_matrix".
@@ -107,13 +107,12 @@ class QuESTBackend(Backend):
         )
         self._result_type = result_type
         self._sim: Type[Union[Register]]
+        self._sim = Register
         if result_type == "state_vector":
             self._density_matrix = False
-            self._sim = Register
             self._supports_density_matrix = False
         elif result_type == "density_matrix":
             self._density_matrix = True
-            self._sim = Register
             self._supports_state = False
             self._supports_density_matrix = True
         else:
@@ -177,9 +176,6 @@ class QuESTBackend(Backend):
 
         if valid_check:
             self._check_all_circuits(circuits, nomeasure_warn=False)
-
-        seed = cast(Optional[int], kwargs.get("seed"))
-        rng = Random(seed) if seed else None
 
         handle_list = []
         for circuit in circuits:
