@@ -12,20 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections import Counter
-from typing import List, Sequence, Union, Optional, Dict, Any
-import warnings
 import math
-from datetime import timedelta
 
 import numpy as np
-import pytest
-from pytket.backends import ResultHandle
-from pytket.circuit import Circuit, BasisOrder, OpType, Qubit
-from pytket.pauli import Pauli, QubitPauliString
+from pytket.circuit import Circuit, BasisOrder, OpType
 from pytket.passes import CliffordSimp
-from pytket.utils.operators import QubitPauliOperator
-from pytket.utils.results import KwargTypes
 
 from pytket.extensions.quest import QuESTBackend
 
