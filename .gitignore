@@ -18,3 +18,4 @@ pytket/extensions/quest/_metadata.py
 __pycache__/
 *.py[cod]
 *$py.class
+pytket/extensions/quest/.DS_Store
