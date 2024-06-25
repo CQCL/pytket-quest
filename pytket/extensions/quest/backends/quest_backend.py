@@ -15,10 +15,9 @@
 """Methods to allow tket circuits to be ran on the QuEST simulator
 """
 
-from typing import List, Sequence, Optional, Type, Union, cast
+from typing import List, Sequence, Optional, Type, Union
 from logging import warning
 from uuid import uuid4
-from random import Random
 from pytket.backends import (
     Backend,
     CircuitNotRunError,
