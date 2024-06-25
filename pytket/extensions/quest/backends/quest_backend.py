@@ -18,6 +18,9 @@
 from typing import List, Sequence, Optional, Type, Union
 from logging import warning
 from uuid import uuid4
+import numpy as np
+from pyquest import Register
+
 from pytket.backends import (
     Backend,
     CircuitNotRunError,
@@ -56,11 +59,6 @@ from pytket.extensions.quest.quest_convert import (
     _TWO_QUBIT_GATES,
     _ONE_QUBIT_ROTATIONS,
 )
-
-import pyquest
-from pyquest import QuESTEnvironment, Register
-from pyquest.unitaries import *
-import numpy as np
 
 _1Q_GATES = set(_ONE_QUBIT_ROTATIONS) | set(_ONE_QUBIT_GATES) | set(_MEASURE_GATES)
 
