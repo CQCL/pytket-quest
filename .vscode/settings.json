@@ -3,4 +3,5 @@
     "python.testing.pytestEnabled": true,
     "debugpy.debugJustMyCode": false,
     "python.analysis.typeCheckingMode": "basic",
+    "python.testing.cwd": "${workspaceFolder}/tests",
 }
