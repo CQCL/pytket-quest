@@ -185,9 +185,9 @@ class QuESTBackend(Backend):
             quest_state.apply_circuit(quest_circ)
 
             if self._result_type == "state_vector":
-                state = quest_state[:]  # type: ignore
+                state = quest_state[:]
             else:
-                state = quest_state[:, :]  # type: ignore
+                state = quest_state[:, :]
             qubits = sorted(circuit.qubits, reverse=False)
 
             if self._result_type == "state_vector":
