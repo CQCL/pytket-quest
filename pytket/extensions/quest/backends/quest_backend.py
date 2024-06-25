@@ -49,7 +49,7 @@ from pytket.predicates import (
     Predicate,
 )
 
-from quest_convert import (
+from pytket.extensions.quest.quest_convert import (
     tk_to_quest,
     _MEASURE_GATES,
     _ONE_QUBIT_GATES,
