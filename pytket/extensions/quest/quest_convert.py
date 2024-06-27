@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Conversion from to tket circuits to QuEST circuits
+"""Conversion from tket circuits to QuEST circuits
 """
 import numpy as np
 
@@ -41,7 +41,7 @@ _TWO_QUBIT_GATES = {OpType.CX: gates.X, OpType.CZ: gates.Z, OpType.SWAP: gates.S
 
 
 def tk_to_quest(
-    circuit: Circuit, reverse_index: bool = False, replace_implicit_swaps: bool = False
+    circuit: Circuit, reverse_index: bool = True, replace_implicit_swaps: bool = False
 ) -> PyQuESTCircuit:
     """Convert a pytket circuit to a quest circuit object."""
     circ = circuit.copy()

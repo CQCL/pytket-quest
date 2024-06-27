@@ -40,7 +40,7 @@ def test_h() -> None:
 def test_bellpairs() -> None:
     reg = Register(2)
     circ = Circuit(2).H(0).CX(0, 1)
-    quest_circ = tk_to_quest(circ, reverse_index=True)
+    quest_circ = tk_to_quest(circ)
     reg.apply_circuit(quest_circ)
 
     reg0 = Register(2)
@@ -78,7 +78,7 @@ def test_swap() -> None:
     circ = Circuit(2).X(1).SWAP(0, 1)
     circ_unitary = circ.get_unitary()
 
-    quest_circ = tk_to_quest(circ, reverse_index=True)
+    quest_circ = tk_to_quest(circ)
     quest_circ_unitary = quest_circ.as_matrix(num_qubits=2)
     reg = Register(2)
     reg.apply_circuit(quest_circ)
@@ -107,6 +107,6 @@ def test_control_pauliz() -> None:
     circ.H(0).CZ(0, 1).H(1)
     circ_unitary = circ.get_unitary()
 
-    quest_circ = tk_to_quest(circ, reverse_index=True)
+    quest_circ = tk_to_quest(circ)
     quest_circ_unitary = quest_circ.as_matrix(num_qubits=2)
     assert np.allclose(circ_unitary, quest_circ_unitary)

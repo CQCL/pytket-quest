@@ -10,7 +10,7 @@ dist
 .mypy_cache
 .hypothesis
 obj
-docs/extensions
+.github/workflows/docs/extensions
 .ipynb_checkpoints
 pytket/extensions/quest/_metadata.py
 
