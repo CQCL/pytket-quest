@@ -63,7 +63,6 @@ RUN useradd -m $MPIRUN_USER
 # Create a symbolic link from python3 to python to run mpirun with python *.py or python3 *.py
 RUN ln -s $(which python3) /usr/bin/python
 
-COPY ./test_pyquest.py .
 COPY ./test_pytketquest.py .
 
 # Allow all hosts to access the container by modifying the /etc/hosts.allow file
