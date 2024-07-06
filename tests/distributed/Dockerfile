@@ -39,7 +39,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     # Install dependencies and build tools
-    apt-get install -y python3-dev python3-pip build-essential \
+    apt-get install -y build-essential \
     xinetd rsh-redone-client rsh-redone-server \
     # Install Open MPI sources
     libopenmpi-dev && \

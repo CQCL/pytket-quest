@@ -21,9 +21,7 @@ def main() -> int:
         circ.add_gate(OpType.H, [i])
 
     circ = backend.get_compiled_circuit(circ)
-    backend.run_circuit(circ)
-
-    result = backend.prob_of_all_outcomes(circ, [i for i in range(num_qubits)])
+    result = backend.run_circuit(circ)
 
     # The process with rank 0 is often used as the root process in collective communications.
     if mpi_rank == 0:
