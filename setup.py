@@ -42,7 +42,7 @@ setup(
     license="Apache 2",
     packages=find_namespace_packages(include=["pytket.extensions.*"]),
     include_package_data=True,
-    install_requires=["pytket ~= 1.28", "pyquest ~= 0.0.1"],
+    install_requires=["pytket ~= 1.28", "pyquest ~= 0.0.1", "numpy >= 1.20, < 2.0.0"],
     classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3.10",
