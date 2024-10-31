@@ -72,13 +72,13 @@ jobs:
       - name: Install poetry
         run: pip install poetry
       - name: Install docs dependencies
-        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+        if: (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
         run: |
           cd docs
           bash ./install.sh
           for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry install $w ; done
       - name: Build docs
-        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+        if: (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
         timeout-minutes: 20
         run: |
           cd docs && poetry run bash ./build-docs.sh
