@@ -69,15 +69,19 @@ jobs:
         with:
           name: artefact-${{ matrix.os }}
           path: wheelhouse/
+      - name: Install poetry
+        run: pip install poetry
       - name: Install docs dependencies
-        if: (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
+        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
         run: |
-          pip install -r .github/workflows/docs/requirements.txt
+          cd docs
+          bash ./install.sh
+          for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry install $w ; done
       - name: Build docs
-        if: (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
+        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
         timeout-minutes: 20
         run: |
-          ./.github/workflows/docs/check-build-docs
+          cd docs && poetry run bash ./build-docs.sh
 
   distributed_tests:
     name: Run distributed calculations
@@ -128,34 +132,16 @@ jobs:
           path: wheelhouse
       - name: Install pip, wheel
         run: pip install -U pip wheel
+      - name: Install poetry
+        run: pip install poetry
       - name: Install extension
-        run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
+        run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry install $w ; done
       - name: Install docs dependencies
         run: |
-          pip install -r .github/workflows/docs/requirements.txt
+          cd docs
+          bash install.sh
       - name: Build docs
         timeout-minutes: 20
         run: |
-          cd .github/workflows/docs
-          mkdir extensions
-          ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
-      - name: Upload docs as artefact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .github/workflows/docs/extensions
-
-  publish_docs:
-    name: Publish docs
-    if: github.event_name == 'release'
-    needs: build_docs
-    runs-on: ubuntu-22.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4.0.4
+          cd docs
+          poetry run bash ./build-docs.sh
