@@ -93,7 +93,7 @@ jobs:
     name: Publish to pypi
     if: github.event_name == 'release'
     needs: distributed_tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Download all wheels
         # downloading all three files into the wheelhouse
