@@ -11,9 +11,15 @@ to be simulated using ``quest``.
 Windows. To install, run:
 
 ::
-   
+
    pip install pytket-quest
 
 .. toctree::
     api.rst
     changelog.rst
+
+.. toctree::
+   :caption: Useful links
+
+   Issue tracker <https://github.com/CQCL/pytket-quest/issues>
+   PyPi <https://pypi.org/project/pytket-quest/>

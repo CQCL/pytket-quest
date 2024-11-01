@@ -15,14 +15,12 @@
 """Conversion from tket circuits to QuEST circuits
 """
 import numpy as np
-
 import pyquest.unitaries as gates
-from pyquest.gates import M as Measurement
 from pyquest import Circuit as PyQuESTCircuit
+from pyquest.gates import M as Measurement
 
 from pytket.circuit import Circuit, OpType
 from pytket.passes import FlattenRegisters
-
 
 _ONE_QUBIT_GATES = {
     OpType.X: gates.NOT,
@@ -83,16 +81,11 @@ def tk_to_quest(
                 add_gate = quest_gate(id2, controls=id1)
             quest_operators.append(add_gate)
 
-        elif optype in _MEASURE_GATES:
-            continue
-
-        elif optype == OpType.Barrier:
+        elif optype in _MEASURE_GATES or optype == OpType.Barrier:
             continue
 
         else:
-            raise NotImplementedError(
-                "Gate: {} Not Implemented in QuEST!".format(optype)
-            )
+            raise NotImplementedError(f"Gate: {optype} Not Implemented in QuEST!")
 
     quest_circ = PyQuESTCircuit(quest_operators)
     return quest_circ

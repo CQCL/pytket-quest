@@ -7,77 +7,82 @@ on:
   push:
     branches:
       - main
-      - 'wheel/**'
-      - 'runci/**'
+      - "wheel/**"
+      - "runci/**"
   release:
     types:
       - created
       - edited
   schedule:
     # 04:00 every Tuesday morning
-    - cron: '0 4 * * 2'
+    - cron: "0 4 * * 2"
 
 jobs:
   quest-checks:
     name: QuEST - Build and test module
     strategy:
       matrix:
-        os: ['ubuntu-22.04', 'macos-12', 'windows-2022']
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
-    - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
-    - name: Install dependencies
-      shell: bash
-      run: |
-        if [[ "${{ matrix.os }}" == "ubuntu-22.04" ]]; then
-          sudo apt-get update && sudo apt-get install -y libopenmpi-dev
-        elif [[ "${{ matrix.os }}" == "macos-12" ]]; then
-          brew install open-mpi
-        elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
-          curl -L -o msmpisetup.exe https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe
-          ./msmpisetup.exe -unattend
-        fi
-    - name: Set up Python 3.10
-      if: github.event_name == 'push' || github.event_name == 'schedule'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    - name: Build and test (3.10)
-      if: github.event_name == 'push' || github.event_name == 'schedule'
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Build and test including remote checks (3.11) mypy
-      if:  (matrix.os == 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
-      shell: bash
-      run: |
-        ./.github/workflows/build-test mypy
-    - name: Build and test including remote checks (3.11) nomypy
-      if:  (matrix.os != 'macos-12') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
-      shell: bash
-      run: |
-        ./.github/workflows/build-test nomypy
-    - uses: actions/upload-artifact@v4
-      if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
-      with:
-        name: artefact-${{ matrix.os }}
-        path: wheelhouse/
-    - name: Install docs dependencies
-      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
-      run: |
-        pip install -r .github/workflows/docs/requirements.txt
-    - name: Build docs
-      if:  (matrix.os == 'ubuntu-22.04') && (github.event_name == 'pull_request' || github.event_name == 'schedule')
-      timeout-minutes: 20
-      run: |
-        ./.github/workflows/docs/check-build-docs
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+          submodules: true
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* +refs/heads/*:refs/remotes/origin/*
+      - name: Install dependencies
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            sudo apt-get update && sudo apt-get install -y libopenmpi-dev
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            brew install open-mpi
+          elif [[ "${{ matrix.os }}" == "windows-2022" ]]; then
+            curl -L -o msmpisetup.exe https://github.com/microsoft/Microsoft-MPI/releases/download/v10.1.1/msmpisetup.exe
+            ./msmpisetup.exe -unattend
+          fi
+      - name: Set up Python 3.10
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Build and test (3.10)
+        if: github.event_name == 'push' || github.event_name == 'schedule'
+        shell: bash
+        run: |
+          ./.github/workflows/build-test nomypy
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build and test including remote checks (3.11) mypy
+        if: (matrix.os == 'macos-latest') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
+        shell: bash
+        run: |
+          ./.github/workflows/build-test mypy
+      - name: Build and test including remote checks (3.11) nomypy
+        if: (matrix.os != 'macos-latest') && (github.event_name == 'push' || (github.event_name == 'pull_request' &&  github.event.pull_request.head.repo.full_name == github.repository) || github.event_name == 'release' || github.event_name == 'schedule')
+        shell: bash
+        run: |
+          ./.github/workflows/build-test nomypy
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'release' || contains(github.ref, 'refs/heads/wheel')
+        with:
+          name: artefact-${{ matrix.os }}
+          path: wheelhouse/
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install docs dependencies
+        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+        run: |
+          cd docs
+          bash ./install.sh
+          for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry run pip install $w ; done
+      - name: Build docs
+        if: (matrix.os == 'ubuntu-latest') && (github.event_name == 'pull_request' || github.event_name == 'schedule' )
+        timeout-minutes: 20
+        run: |
+          cd docs && poetry run bash ./build-docs.sh
 
   distributed_tests:
     name: Run distributed calculations
@@ -88,74 +93,57 @@ jobs:
     name: Publish to pypi
     if: github.event_name == 'release'
     needs: distributed_tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-    - name: Download all wheels
-      # downloading all three files into the wheelhouse
-      # all files are identical, so there will only be one file
-      uses: actions/download-artifact@v4
-      with:
-        path: wheelhouse
-        pattern: artefact-*
-        merge-multiple: true
-    - name: Put them all in the dist folder
-      run: |
-        mkdir dist
-        for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
-    - name: Publish wheels
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PYTKET_QUEST_API_TOKEN }}
-        verbose: true
+      - name: Download all wheels
+        # downloading all three files into the wheelhouse
+        # all files are identical, so there will only be one file
+        uses: actions/download-artifact@v4
+        with:
+          path: wheelhouse
+          pattern: artefact-*
+          merge-multiple: true
+      - name: Put them all in the dist folder
+        run: |
+          mkdir dist
+          for w in `find wheelhouse/ -type f -name "*.whl"` ; do cp $w dist/ ; done
+      - name: Publish wheels
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PYTKET_QUEST_API_TOKEN }}
+          verbose: true
 
   build_docs:
     name: Build docs
     if: github.event_name == 'release'
     needs: publish_to_pypi
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: '0'
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Download all wheels
-      uses: actions/download-artifact@v4
-      with:
-        path: wheelhouse
-    - name: Install pip, wheel
-      run: pip install -U pip wheel
-    - name: Install extension
-      run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do pip install $w ; done
-    - name: Install docs dependencies
-      run: |
-        pip install -r .github/workflows/docs/requirements.txt
-    - name: Build docs
-      timeout-minutes: 20
-      run: |
-        cd .github/workflows/docs
-        mkdir extensions
-        ./build-docs -d ${GITHUB_WORKSPACE}/.github/workflows/docs/extensions/api
-    - name: Upload docs as artefact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: .github/workflows/docs/extensions
-  
-  publish_docs:
-    name: Publish docs
-    if: github.event_name == 'release'
-    needs: build_docs
-    runs-on: ubuntu-22.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4.0.4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+          submosules: true
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: wheelhouse
+      - name: Install pip, wheel
+        run: pip install -U pip wheel
+      - name: Install poetry
+        run: pip install poetry
+      - name: Install extension
+        run: for w in `find wheelhouse/ -type f -name "*.whl"` ; do poetry run pip install $w ; done
+      - name: Install docs dependencies
+        run: |
+          cd docs
+          bash install.sh
+      - name: Build docs
+        timeout-minutes: 20
+        run: |
+          cd docs
+          poetry run bash ./build-docs.sh

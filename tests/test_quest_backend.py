@@ -15,10 +15,10 @@
 import math
 
 import numpy as np
-from pytket.circuit import Circuit, BasisOrder, OpType
-from pytket.passes import CliffordSimp
 
+from pytket.circuit import BasisOrder, Circuit, OpType
 from pytket.extensions.quest import QuESTBackend
+from pytket.passes import CliffordSimp
 
 PARAM = -0.11176849
 backends = [

@@ -70,8 +70,16 @@ To run the tests for a module:
 
 1. `cd` into that module's `tests` directory;
 2. ensure you have installed `pytest`, and any modules listed in
-the `test-requirements.txt` file (all via `pip`);
+   the `test-requirements.txt` file (all via `pip`);
 3. run `pytest`.
 
 When adding a new feature, please add a test for it. When fixing a bug, please
 add a test that demonstrates the fix.
+
+## Acknowledgements
+
+We acknowledge the outstanding contributions from
+[Oleksii Borodenko](https://github.com/TerraVenil) and
+[Ignacio Salgado](https://github.com/Salgi15), who
+worked on the first version of this package as part of the
+[Quantum Open Source Foundation mentorship program](https://www.qosf.org/qc_mentorship/).

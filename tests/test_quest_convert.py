@@ -12,16 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Tuple
-
-import pytest
-
 import numpy as np
-
+import pytest
 from pyquest import Register
 from pyquest.initialisations import ClassicalState
-from pytket.circuit import Circuit, OpType
 
+from pytket.circuit import Circuit, OpType
 from pytket.extensions.quest import tk_to_quest
 
 
@@ -94,7 +90,7 @@ def test_swap() -> None:
         (OpType.U3, [0.19, 0.24, 0.3], 2),
     ],
 )
-def test_ibm_gateset_error(gate_params: Tuple[OpType, List[int], int]) -> None:
+def test_ibm_gateset_error(gate_params: tuple[OpType, list[int], int]) -> None:
     circ = Circuit(3)
     op_type, angles, qubit = gate_params
     circ.add_gate(op_type, angles, [qubit])
