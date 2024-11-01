@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Configuration file for the Sphinx documentation builder.
 # See https://www.sphinx-doc.org/en/master/usage/configuration.html
 
@@ -44,7 +42,7 @@ autodoc_member_order = "groupwise"
 # The following code is for resolving broken hyperlinks in the doc.
 
 import re
-from typing import Any, Dict, List, Tuple, Optional
+from typing import Any, Optional
 from urllib.parse import urljoin
 
 from docutils import nodes
@@ -85,7 +83,8 @@ custom_internal_mapping = {
 def add_reference(
     app: Sphinx, env: BuildEnvironment, node: Element, contnode: TextElement
 ) -> Optional[nodes.reference]:
-    # Fix references in docstrings that are inherited from the base pytket.backends.Backend class.
+    # Fix references in docstrings that are inherited from
+    # the base pytket.backends.Backend class.
     mapping = app.config.external_url_mapping
     if node.astext() in mapping:
         newnode = nodes.reference(
@@ -105,10 +104,10 @@ def correct_signature(
     what: str,
     name: str,
     obj: Any,
-    options: Dict,
+    options: dict,
     signature: str,
     return_annotation: str,
-) -> Tuple[str, str]:
+) -> tuple[str, str]:
 
     new_signature = signature
     new_return_annotation = return_annotation
@@ -117,7 +116,8 @@ def correct_signature(
             new_signature = new_signature.replace(k, v)
         if return_annotation is not None:
             new_return_annotation = new_return_annotation.replace(k, v)
-    # e.g. Replace <CXConfigType.Snake: 0> by CXConfigType.Snake to avoid silent failure in later stages.
+    # e.g. Replace <CXConfigType.Snake: 0> by CXConfigType.Snake
+    # to avoid silent failure in later stages.
     if new_signature is not None:
         enums_signature = re.findall(r"<.+?\: \d+>", new_signature)
         for e in enums_signature:

@@ -15,9 +15,11 @@
 """Methods to allow tket circuits to be ran on the QuEST simulator
 """
 
-from typing import List, Sequence, Optional, Type, Union
+from collections.abc import Sequence
 from logging import warning
+from typing import Optional, Union
 from uuid import uuid4
+
 import numpy as np
 from pyquest import Register
 
@@ -28,36 +30,35 @@ from pytket.backends import (
     ResultHandle,
     StatusEnum,
 )
-from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
+from pytket.backends.resulthandle import _ResultIdTuple
 from pytket.circuit import Circuit, OpType
 from pytket.extensions.quest._metadata import __extension_version__
+from pytket.extensions.quest.quest_convert import (
+    _MEASURE_GATES,
+    _ONE_QUBIT_GATES,
+    _ONE_QUBIT_ROTATIONS,
+    _TWO_QUBIT_GATES,
+    tk_to_quest,
+)
 from pytket.passes import (
     BasePass,
-    SynthesiseTket,
-    SequencePass,
     DecomposeBoxes,
-    FullPeepholeOptimise,
     FlattenRegisters,
+    FullPeepholeOptimise,
+    SequencePass,
+    SynthesiseTket,
     auto_rebase_pass,
 )
 from pytket.predicates import (
+    DefaultRegisterPredicate,
     GateSetPredicate,
     NoClassicalControlPredicate,
     NoFastFeedforwardPredicate,
     NoMidMeasurePredicate,
     NoSymbolsPredicate,
-    DefaultRegisterPredicate,
     Predicate,
-)
-
-from pytket.extensions.quest.quest_convert import (
-    tk_to_quest,
-    _MEASURE_GATES,
-    _ONE_QUBIT_GATES,
-    _TWO_QUBIT_GATES,
-    _ONE_QUBIT_ROTATIONS,
 )
 
 _1Q_GATES = set(_ONE_QUBIT_ROTATIONS) | set(_ONE_QUBIT_GATES) | set(_MEASURE_GATES)
@@ -103,7 +104,7 @@ class QuESTBackend(Backend):
             self._GATE_SET,
         )
         self._result_type = result_type
-        self._sim: Type[Union[Register]]
+        self._sim: type[Union[Register]]
         self._sim = Register
         if result_type == "state_vector":
             self._density_matrix = False
@@ -124,7 +125,7 @@ class QuESTBackend(Backend):
         return self._backend_info
 
     @property
-    def required_predicates(self) -> List[Predicate]:
+    def required_predicates(self) -> list[Predicate]:
         return [
             NoClassicalControlPredicate(),
             NoFastFeedforwardPredicate(),
@@ -168,7 +169,7 @@ class QuESTBackend(Backend):
         n_shots: int | Sequence[int] | None = None,
         valid_check: bool = True,
         **kwargs: int | float | str | None,
-    ) -> List[ResultHandle]:
+    ) -> list[ResultHandle]:
         circuits = list(circuits)
 
         if valid_check:

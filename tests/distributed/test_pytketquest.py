@@ -1,5 +1,4 @@
 import pyquest
-
 from mpi4py import MPI
 
 from pytket.circuit import Circuit, OpType
@@ -23,7 +22,8 @@ def main() -> int:
     circ = backend.get_compiled_circuit(circ)
     result = backend.run_circuit(circ)
 
-    # The process with rank 0 is often used as the root process in collective communications.
+    # The process with rank 0 is often used as the root process
+    # in collective communications.
     if mpi_rank == 0:
         print(result)
 

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import shutil
 import os
-from setuptools import setup, find_namespace_packages
+import shutil
+
+from setuptools import find_namespace_packages, setup
 
 metadata: dict = {}
 with open("_metadata.py") as fp:
@@ -24,6 +25,8 @@ shutil.copy(
     os.path.join("pytket", "extensions", "quest", "_metadata.py"),
 )
 
+with open("README.md") as readme:
+    long_description = readme.read()
 
 setup(
     name="pytket-quest",
@@ -37,7 +40,7 @@ setup(
         "Tracker": "https://github.com/CQCL/pytket-quest/issues",
     },
     description="Extension for pytket, providing access to the QuEST Simulator",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
     license="Apache 2",
     packages=find_namespace_packages(include=["pytket.extensions.*"]),
