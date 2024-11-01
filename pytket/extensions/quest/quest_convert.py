@@ -85,9 +85,7 @@ def tk_to_quest(
             continue
 
         else:
-            raise NotImplementedError(
-                f"Gate: {optype} Not Implemented in QuEST!"
-            )
+            raise NotImplementedError(f"Gate: {optype} Not Implemented in QuEST!")
 
     quest_circ = PyQuESTCircuit(quest_operators)
     return quest_circ
