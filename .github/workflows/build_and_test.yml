@@ -22,7 +22,7 @@ jobs:
     name: QuEST - Build and test module
     strategy:
       matrix:
-        os: ["ubuntu-22.04", "macos-latest", "windows-2022"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -93,7 +93,7 @@ jobs:
     name: Publish to pypi
     if: github.event_name == 'release'
     needs: distributed_tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Download all wheels
         # downloading all three files into the wheelhouse
@@ -118,7 +118,7 @@ jobs:
     name: Build docs
     if: github.event_name == 'release'
     needs: publish_to_pypi
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
